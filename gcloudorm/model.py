@@ -244,10 +244,18 @@ class Model(entity.Entity):
     _properties = None
     _kind_map = {}
 
-    def __init__(self, id=None, **kwargs):
-        super(Model, self).__init__(dataset, self.__class__.__name__)
-        if id is not None:
-            self._key = self._key.id(id)
+    def __init__(self, id=None, parent=None, **kwargs):
+        super(Model, self).__init__(dataset)
+
+        if isinstance(parent, key.Key):
+            flat = []
+            for k in parent.path():
+                flat.extend([k["kind"], k.get("id") or k.get("name")])
+
+            flat.extend([self.__class__.__name__, id])
+            self._key = key.Key.from_path(*flat)
+        else:
+            self._key = key.Key.from_path(self.__class__.__name__, id)
 
         for name in kwargs:
             setattr(self, name, kwargs[name])

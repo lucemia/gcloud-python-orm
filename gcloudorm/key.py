@@ -26,6 +26,8 @@ class Key(key.Key):
                     path.append({'kind': kind, 'id': _id})
                 elif isinstance(_id, basestring):
                     path.append({'kind': kind, 'name': _id})
+                elif _id is None:
+                    path.append({'kind': kind, 'id': _id})
                 else:
                     raise SyntaxError("id should be either int or string")
 
