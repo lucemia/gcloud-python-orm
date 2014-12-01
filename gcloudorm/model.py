@@ -313,13 +313,13 @@ class Model(entity.Entity):
 
     @classmethod
     def get_by_id(cls, id):
-        entity = cls.dataset.get_entity(Key.from_path(cls.__name__, id))
+        entity = cls.dataset.get_entity(key.Key.from_path(cls.__name__, id))
         if entity:
             return cls.from_entity(entity)
 
     @classmethod
     def get_multi(cls, ids):
-        entities = cls.dataset.get_entities([Key.from_path(cls.__name__, id) for id in ids])
+        entities = cls.dataset.get_entities([key.Key.from_path(cls.__name__, id) for id in ids])
         results = []
 
         for entity in entities:
