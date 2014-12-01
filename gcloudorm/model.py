@@ -1,5 +1,6 @@
 from gcloud import datastore
 from gcloud.datastore import entity, key
+import cPickle as pickle
 try:
   import json
 except ImportError:
@@ -22,9 +23,15 @@ class Property(object):
 
     def __get__(self, instance, owner):
         if self._repeated:
-            return [self.from_base_type(k) for k in instance.get(self._name, [])]
+            if not self._name in instance:
+                self.__set__(instance, self._default or [])
 
-        return self.from_base_type(instance.get(self._name))
+            return [self.from_base_type(k) for k in instance[self._name]]
+
+        if not self._name in instance:
+            self.__set__(instance, self._default)
+
+        return self.from_base_type(instance[self._name])
 
     def __set__(self, instance, value):
         if self._repeated:
@@ -35,7 +42,7 @@ class Property(object):
             value = self.validate(value)
             instance[self._name] = self.to_base_type(value)
 
-    def __del__(self, instance):
+    def __delete__(self, instance):
         instance.pop(self._name, None)
 
     def _fix_up(self, cls, name):
@@ -256,6 +263,9 @@ class Model(entity.Entity):
             self._key = key.Key.from_path(*flat)
         else:
             self._key = key.Key.from_path(self.__class__.__name__, id)
+
+        for attr in self._properties:
+            setattr(self, attr, getattr(self, attr))
 
         for name in kwargs:
             setattr(self, name, kwargs[name])
