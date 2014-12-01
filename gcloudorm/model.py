@@ -9,8 +9,6 @@ except ImportError:
 import datetime
 
 
-dataset = None
-
 class Property(object):
     def __init__(self, name=None, indexed=True, repeated=False, required=False, default=None, choices=None, validator=None):
         self._name = name
@@ -251,8 +249,10 @@ class Model(entity.Entity):
     _properties = None
     _kind_map = {}
 
+    dataset = None
+
     def __init__(self, id=None, parent=None, **kwargs):
-        super(Model, self).__init__(dataset)
+        super(Model, self).__init__(self.dataset)
 
         if isinstance(parent, key.Key):
             flat = []
@@ -313,13 +313,13 @@ class Model(entity.Entity):
 
     @classmethod
     def get_by_id(cls, id):
-        entity = dataset.get_entity(Key.from_path(cls.__name__, id))
+        entity = cls.dataset.get_entity(Key.from_path(cls.__name__, id))
         if entity:
             return cls.from_entity(entity)
 
     @classmethod
     def get_multi(cls, ids):
-        entities = dataset.get_entities([Key.from_path(cls.__name__, id) for id in ids])
+        entities = cls.dataset.get_entities([Key.from_path(cls.__name__, id) for id in ids])
         results = []
 
         for entity in entities:
@@ -338,7 +338,7 @@ class Model(entity.Entity):
 
 
 def get_multi(keys):
-    entities = dataset.get_entities(keys)
+    entities = Model.dataset.get_entities(keys)
 
     results = []
     for entity in entities:
