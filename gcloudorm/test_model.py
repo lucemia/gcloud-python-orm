@@ -203,7 +203,7 @@ class TestModel(unittest2.TestCase):
         dataset = _Dataset(connection)
         key = _Key()
 
-        model.dataset = dataset
+        model.Model.dataset = dataset
 
         class TestModel(model.Model):
             test_value = model.StringProperty()

@@ -251,8 +251,10 @@ class Model(entity.Entity):
 
     dataset = None
 
+    model_exclude_from_indexes = set()
+
     def __init__(self, id=None, parent=None, **kwargs):
-        super(Model, self).__init__(self.dataset)
+        super(Model, self).__init__(self.dataset, exclude_from_indexes=self.model_exclude_from_indexes)
 
         if isinstance(parent, key.Key):
             flat = []
@@ -279,6 +281,8 @@ class Model(entity.Entity):
             if isinstance(attr, Property):
                 attr._fix_up(cls, name)
                 cls._properties[attr._name] = attr
+                if attr._indexed is False:
+                    cls.model_exclude_from_indexes.add(attr._name)
 
         cls._kind_map[cls.__name__] = cls
 
