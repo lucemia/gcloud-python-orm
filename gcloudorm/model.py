@@ -251,10 +251,10 @@ class Model(entity.Entity):
 
     dataset = None
 
-    model_exclude_from_indexes = set()
+    _model_exclude_from_indexes = None
 
     def __init__(self, id=None, parent=None, **kwargs):
-        super(Model, self).__init__(self.dataset, exclude_from_indexes=self.model_exclude_from_indexes)
+        super(Model, self).__init__(self.dataset, exclude_from_indexes=self._model_exclude_from_indexes)
 
         if isinstance(parent, key.Key):
             flat = []
@@ -275,6 +275,7 @@ class Model(entity.Entity):
     @classmethod
     def _fix_up_properties(cls):
         cls._properties = {}
+        cls._model_exclude_from_indexes = set()
 
         for name in cls.__dict__:
             attr = cls.__dict__[name]
@@ -282,7 +283,7 @@ class Model(entity.Entity):
                 attr._fix_up(cls, name)
                 cls._properties[attr._name] = attr
                 if attr._indexed is False:
-                    cls.model_exclude_from_indexes.add(attr._name)
+                    cls._model_exclude_from_indexes.add(attr._name)
 
         cls._kind_map[cls.__name__] = cls
 
