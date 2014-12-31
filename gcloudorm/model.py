@@ -104,7 +104,7 @@ class FloatProperty(Property):
 
 class BlobProperty(Property):
     def __init__(self, name=None, compressed=False, **kwargs):
-        super(BlobProperty, self).__init__(name=name, **kwargs)
+        super(BlobProperty, self).__init__(name=name, indexed=False, **kwargs)
         self._compressed = compressed
         assert not (compressed and self._indexed), "BlobProperty %s cannot be compressed and indexed at the same time." % self._name
 
@@ -282,7 +282,7 @@ class Model(entity.Entity):
             if isinstance(attr, Property):
                 attr._fix_up(cls, name)
                 cls._properties[attr._name] = attr
-                if attr._indexed is False:
+                if attr._indexed == False:
                     cls._model_exclude_from_indexes.add(attr._name)
 
         cls._kind_map[cls.__name__] = cls
