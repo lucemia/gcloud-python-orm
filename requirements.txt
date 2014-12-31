@@ -1,1 +1,4 @@
 gcloud
+unittest2
+coverage
+nose
