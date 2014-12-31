@@ -1,8 +1,8 @@
 import unittest2
+from gcloudorm.key import Key
 
 class TestKey(unittest2.TestCase):
     def _getTargetClass(self):
-        from .key import Key
         return Key
 
     def test__init__w_flat(self):

@@ -1,10 +1,8 @@
 import unittest2
+from gcloudorm import key, model
 
 class TestModel(unittest2.TestCase):
     def testModel(self):
-        import model
-        import key
-
         # key name
         m = model.Model(id='bar')
         self.assertEqual(m.key().name(), 'bar')
@@ -29,8 +27,6 @@ class TestModel(unittest2.TestCase):
         self.assertEqual(m.key().path(), key.Key(flat=('ParentModel', 'foo', 'Model', None)).path())
 
     def testBooleanProperty(self):
-        import model
-
         class TestModel(model.Model):
             test_bool = model.BooleanProperty()
 
@@ -54,8 +50,6 @@ class TestModel(unittest2.TestCase):
         self.assertEqual(m['test_bool'], True)
 
     def testIntegerProperty(self):
-        import model
-
         class TestModel(model.Model):
             test_int = model.IntegerProperty()
 
@@ -74,8 +68,6 @@ class TestModel(unittest2.TestCase):
         self.assertEqual(m['test_int'], 4)
 
     def testFloatproperty(self):
-        import model
-
         class TestModel(model.Model):
             test_float = model.FloatProperty()
 
@@ -93,8 +85,6 @@ class TestModel(unittest2.TestCase):
         self.assertEqual(m['test_float'], 0.2)
 
     def testTextProperty(self):
-        import model
-
         class TestModel(model.Model):
             test_text = model.TextProperty()
 
@@ -110,8 +100,6 @@ class TestModel(unittest2.TestCase):
 
 
     def testStringProperty(self):
-        import model
-
         class TestModel(model.Model):
             test_str = model.StringProperty()
 
@@ -123,8 +111,6 @@ class TestModel(unittest2.TestCase):
 
 
     def testPickleProperty(self):
-        import model
-
         class TestModel(model.Model):
             test_pickle = model.PickleProperty()
 
@@ -137,8 +123,6 @@ class TestModel(unittest2.TestCase):
         self.assertEqual(m.test_pickle, {'456': '789'})
 
     def testJsonProperty(self):
-        import model
-
         class TestModel(model.Model):
             test_pickle = model.JsonProperty()
 
@@ -152,7 +136,6 @@ class TestModel(unittest2.TestCase):
 
 
     def testDataTimeProperty(self):
-        import model
         import datetime
 
         class TestModel(model.Model):
@@ -167,7 +150,6 @@ class TestModel(unittest2.TestCase):
 
 
     def testDateProperty(self):
-        import model
         import datetime
 
         class TestModel(model.Model):
@@ -181,7 +163,6 @@ class TestModel(unittest2.TestCase):
         self.assertEqual(m.test_date, today)
 
     def testTimeProperty(self):
-        import model
         import datetime
 
         class TestModel(model.Model):
@@ -196,8 +177,6 @@ class TestModel(unittest2.TestCase):
         self.assertEqual(m.test_time, t)
 
     def testInsert(self):
-        import model
-
         connection = _Connection()
         transaction = connection._transaction = _Transaction()
         dataset = _Dataset(connection)
