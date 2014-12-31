@@ -104,7 +104,9 @@ class FloatProperty(Property):
 
 class BlobProperty(Property):
     def __init__(self, name=None, compressed=False, **kwargs):
+        kwargs.pop('indexed', None)
         super(BlobProperty, self).__init__(name=name, indexed=False, **kwargs)
+
         self._compressed = compressed
         assert not (compressed and self._indexed), "BlobProperty %s cannot be compressed and indexed at the same time." % self._name
 
