@@ -6,8 +6,8 @@ try:
 except ImportError:
   import simplejson as json
 
+import zlib
 import datetime
-
 
 class Property(object):
     def __init__(self, name=None, indexed=True, repeated=False, required=False, default=None, choices=None, validator=None):
