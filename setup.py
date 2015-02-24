@@ -12,12 +12,12 @@ with open(os.path.join(here, 'README.md')) as f:
 
 
 REQUIREMENTS = [
-    'gcloud',
+    'gcloud==0.3.0',
 ]
 
 setup(
     name='gcloudorm',
-    version='0.1.0',
+    version='0.3.0',
     description='ORM for Google Cloud',
     author='lucemia',
     author_email='lucemia@gmail.com',

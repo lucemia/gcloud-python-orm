@@ -1,4 +1,4 @@
-gcloud
+gcloud==0.3.0
 unittest2
 coverage
 nose
