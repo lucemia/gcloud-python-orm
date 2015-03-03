@@ -251,12 +251,10 @@ class Model(entity.Entity):
     _properties = None
     _kind_map = {}
 
-    dataset = None
-
     _model_exclude_from_indexes = None
 
     def __init__(self, id=None, parent=None, **kwargs):
-        super(Model, self).__init__(self.dataset, exclude_from_indexes=self._model_exclude_from_indexes)
+        super(Model, self).__init__(exclude_from_indexes=self._model_exclude_from_indexes)
 
         if isinstance(parent, key.Key):
             flat = []
@@ -337,13 +335,13 @@ class Model(entity.Entity):
 
     @classmethod
     def get_by_id(cls, id):
-        entity = cls.dataset.get_entity(key.Key(cls.__name__, id))
+        entity = datastore.Entity(key.Key(cls.__name__, id))
         if entity:
             return cls.from_entity(entity)
 
     @classmethod
     def get_multi(cls, ids):
-        entities = cls.dataset.get_entities([key.Key(cls.__name__, id) for id in ids])
+        entities = datastore.get([key.Key(cls.__name__, id) for id in ids])
         results = []
 
         for entity in entities:
@@ -362,7 +360,7 @@ class Model(entity.Entity):
 
 
 def get_multi(keys):
-    entities = Model.dataset.get_entities(keys)
+    entities = datastore.get(keys)
 
     results = []
     for entity in entities:
