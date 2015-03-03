@@ -88,7 +88,7 @@ class Model(entity.Entity):
     @classmethod
     def from_entity(cls, entity):
         obj = cls()
-        obj._key = entity.key()
+        obj._key = entity.key
 
         for name in cls._properties:
             value = entity.get(name)
