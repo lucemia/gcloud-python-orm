@@ -1,30 +1,37 @@
 import unittest2
-from gcloudorm import key, model
+from gcloudorm import model
+from gcloud import datastore
+from gcloud.datastore.key import Key
+from gcloud.datastore.connection import Connection
 
 class TestModel(unittest2.TestCase):
+    def setUp(self):
+        from gcloud import datastore
+        datastore.set_defaults(dataset_id="test-data-set", connection=Connection())
+
     def testModel(self):
         # key name
         m = model.Model(id='bar')
-        self.assertEqual(m.key().name(), 'bar')
-        self.assertEqual(m.key().kind(), 'Model')
+        self.assertEqual(m.key.name, 'bar')
+        self.assertEqual(m.key.kind, 'Model')
 
-        p = key.Key('ParentModel', 'foo')
+        p = Key('ParentModel', 'foo')
 
         # key name + parent
         m = model.Model(id='bar', parent=p)
-        self.assertEqual(m.key().path(), key.Key(flat=('ParentModel', 'foo', 'Model', 'bar')).path())
+        self.assertEqual(m.key.path, Key('ParentModel', 'foo', 'Model', 'bar').path)
 
         # key id
         m = model.Model(id=42)
-        self.assertEqual(m.key().id(), 42)
+        self.assertEqual(m.key.id, 42)
 
         # key id + parent
         m = model.Model(id=42, parent=p)
-        self.assertEqual(m.key().path(), key.Key(flat=('ParentModel', 'foo', 'Model', 42)).path())
+        self.assertEqual(m.key.path, Key('ParentModel', 'foo', 'Model', 42).path)
 
         # parent
         m = model.Model(parent=p)
-        self.assertEqual(m.key().path(), key.Key(flat=('ParentModel', 'foo', 'Model', None)).path())
+        self.assertEqual(m.key.path, Key('ParentModel', 'foo', 'Model').path)
 
     def testBooleanProperty(self):
         class TestModel(model.Model):
@@ -177,18 +184,13 @@ class TestModel(unittest2.TestCase):
         self.assertEqual(m.test_time, t)
 
     def testInsert(self):
-        connection = _Connection()
-        transaction = connection._transaction = _Transaction()
-        dataset = _Dataset(connection)
-        key = _Key()
-
-        model.Model.dataset = dataset
-
         class TestModel(model.Model):
             test_value = model.StringProperty()
 
+        conn = Connection()
+        http = conn._http = Http({'status': '200'}, '')
+        datastore.set_default_connection(conn)
         entity = TestModel(id=1)
-        entity.key(key)
         entity.test_value = '123'
         entity.put()
 
@@ -198,70 +200,16 @@ class TestModel(unittest2.TestCase):
         # self.assertEqual(key._path, None)
 
 
-_MARKER = object()
-_DATASET_ID = 'DATASET'
-_KIND = 'KIND'
-_ID = 1234
+class Http(object):
 
+    _called_with = None
 
+    def __init__(self, headers, content):
+        from httplib2 import Response
+        self._response = Response(headers)
+        self._content = content
 
-class _Key(object):
-    _MARKER = object()
-    _key = 'KEY'
-    _partial = False
-    _path = None
+    def request(self, **kw):
+        self._called_with = kw
+        return self._response, self._content
 
-    def to_protobuf(self):
-        return self._key
-
-    def is_partial(self):
-        return self._partial
-
-    def path(self, path=_MARKER):
-        if path is self._MARKER:
-            return self._path
-        self._path = path
-
-
-class _Dataset(dict):
-
-    def __init__(self, connection=None):
-        super(_Dataset, self).__init__()
-        self._connection = connection
-
-    def id(self):
-        return _DATASET_ID
-
-    def connection(self):
-        return self._connection
-
-    def get_entity(self, key):
-        return self.get(key)
-
-
-class _Connection(object):
-    _transaction = _saved = _deleted = None
-    _save_result = True
-
-    def transaction(self):
-        return self._transaction
-
-    def save_entity(self, dataset_id, key_pb, properties,
-                    exclude_from_indexes=()):
-        self._saved = (dataset_id, key_pb, properties,
-                       tuple(exclude_from_indexes))
-        return self._save_result
-
-    def delete_entities(self, dataset_id, key_pbs):
-        self._deleted = (dataset_id, key_pbs)
-
-
-class _Transaction(object):
-    _added = ()
-
-    def __nonzero__(self):
-        return True
-    __bool__ = __nonzero__
-
-    def add_auto_id_entity(self, entity):
-        self._added += (entity,)

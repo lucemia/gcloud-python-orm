@@ -260,19 +260,36 @@ class Model(entity.Entity):
 
         if isinstance(parent, key.Key):
             flat = []
-            for k in parent.path():
+            for k in parent.path:
                 flat.extend([k["kind"], k.get("id") or k.get("name")])
 
-            flat.extend([self.__class__.__name__, id])
-            self._key = key.Key.from_path(*flat)
+            if id is None:
+                flat.extend([self.__class__.__name__])
+            else:
+                flat.extend([self.__class__.__name__, id])
+
+            self._key = key.Key(*flat)
         else:
-            self._key = key.Key.from_path(self.__class__.__name__, id)
+            if id is None:
+                self._key = key.Key(self.__class__.__name__)
+            elif isinstance(id, (int, long, basestring)):
+                self._key = key.Key(self.__class__.__name__, id)
+            else:
+                raise SyntaxError()
 
         for attr in self._properties:
             setattr(self, attr, getattr(self, attr))
 
         for name in kwargs:
             setattr(self, name, kwargs[name])
+
+    @property
+    def key(self):
+        return self._key
+    @key.setter
+    def key(self, value):
+        self._key = value
+
 
     @classmethod
     def _fix_up_properties(cls):
@@ -320,13 +337,13 @@ class Model(entity.Entity):
 
     @classmethod
     def get_by_id(cls, id):
-        entity = cls.dataset.get_entity(key.Key.from_path(cls.__name__, id))
+        entity = cls.dataset.get_entity(key.Key(cls.__name__, id))
         if entity:
             return cls.from_entity(entity)
 
     @classmethod
     def get_multi(cls, ids):
-        entities = cls.dataset.get_entities([key.Key.from_path(cls.__name__, id) for id in ids])
+        entities = cls.dataset.get_entities([key.Key(cls.__name__, id) for id in ids])
         results = []
 
         for entity in entities:
@@ -341,7 +358,7 @@ class Model(entity.Entity):
         for name, prop in self._properties.items():
             prop._prepare_for_put(self)
 
-        return self.save()
+        return datastore.put([self])
 
 
 def get_multi(keys):
