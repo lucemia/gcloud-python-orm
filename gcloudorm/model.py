@@ -116,11 +116,14 @@ class Model(entity.Entity):
 
         return results
 
-    def put(self):
+    def put(self, batch=None):
         for name, prop in self._properties.items():
             prop._prepare_for_put(self)
 
-        return datastore.put([self])
+        if batch:
+            return batch.put(self)
+        else:
+            return datastore.put([self])
 
 
 def get_multi(keys):
